@@ -1,0 +1,17 @@
+services:
+  support-agent-api:
+    build: .
+    container_name: ai-support-lead-agent
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persists the SQLite DB on the host so data survives `docker compose down`
+      - ./data:/app/data
+    environment:
+      DB_PATH: /app/data/support_agent.db
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:1.5b}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-30}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10172a">
+  <title>Customer Support | Lead Qualification</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #718096;
+      --line: #e8edf4;
+      --blue: #4667f5;
+      --blue-dark: #354fe0;
+      --canvas: #f3f6fb;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    body {
+      height: 100dvh;
+      min-height: 0;
+      margin: 0;
+      padding: 28px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 18% 14%, #e0e9ff 0, transparent 34%),
+        radial-gradient(ellipse at 88% 85%, #e4f2ee 0, transparent 30%),
+        var(--canvas);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    .shell {
+      width: min(1120px, 100%);
+      height: min(790px, calc(100dvh - 56px));
+      min-height: 0;
+      display: grid;
+      grid-template-rows: minmax(0, 1fr);
+      grid-template-columns: 310px minmax(0, 1fr);
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid #e6ebf2;
+      border-radius: 24px;
+      box-shadow: 0 28px 80px #26375a1c, 0 3px 12px #26375a0a;
+    }
+    .sidebar {
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 30px 24px 24px;
+      color: #eef2ff;
+      background:
+        radial-gradient(circle at 8% 7%, #526ffb8a, transparent 30%),
+        linear-gradient(155deg, #18213c, #11182d 72%);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center;
+      border: 1px solid #ffffff27; border-radius: 14px;
+      background: #ffffff13; color: #aebcff; font-size: 19px; font-weight: 800;
+    }
+    .brand-name { font-size: 15px; font-weight: 750; letter-spacing: .02em; }
+    .brand-caption { margin-top: 1px; color: #aeb8d0; font-size: 11px; }
+    .side-copy { margin-top: 55px; }
+    .eyebrow {
+      color: #9eacff; font-size: 10px; font-weight: 800;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .side-copy h1 { margin: 10px 0 12px; font-size: 29px; line-height: 1.17; letter-spacing: -.04em; }
+    .side-copy p { margin: 0; color: #b7c0d5; font-size: 13px; line-height: 1.75; }
+    .topic-list { display: grid; gap: 10px; margin: 30px 0 0; padding: 0; list-style: none; }
+    .topic-list li { display: flex; align-items: center; gap: 10px; color: #d7def0; font-size: 12px; }
+    .topic-dot { width: 7px; height: 7px; border-radius: 50%; background: #8e9fff; box-shadow: 0 0 12px #8e9fff88; }
+    .side-note {
+      margin-top: auto; padding: 14px; border: 1px solid #ffffff18;
+      border-radius: 13px; background: #ffffff0b; color: #bec8dc;
+      font-size: 11px; line-height: 1.65;
+    }
+    .side-note strong { display: block; margin-bottom: 3px; color: #fff; font-size: 12px; }
+    .chat-panel {
+      display: flex; min-width: 0; min-height: 0;
+      flex-direction: column; overflow: hidden; background: #fff;
+    }
+    .topbar {
+      flex: 0 0 auto;
+      min-height: 78px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 16px 24px; border-bottom: 1px solid var(--line);
+    }
+    .agent { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .agent-avatar {
+      position: relative; width: 42px; height: 42px; display: grid; place-items: center;
+      flex: 0 0 auto; border-radius: 15px; background: #eef1ff; color: var(--blue);
+      font-size: 17px; font-weight: 800;
+    }
+    .agent-avatar::after {
+      position: absolute; right: -2px; bottom: -1px; width: 10px; height: 10px;
+      border: 2px solid #fff; border-radius: 50%; background: #36bd86; content: "";
+    }
+    .agent-name { font-size: 13px; font-weight: 750; }
+    .agent-status { color: var(--muted); font-size: 11px; }
+    .profile-button {
+      padding: 9px 13px; border: 1px solid #e4e9f1; border-radius: 10px;
+      background: #fff; color: #44516a; font-size: 11px; font-weight: 700;
+    }
+    .profile-button:hover { border-color: #b9c5ff; color: var(--blue); }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .dashboard-button {
+      padding: 9px 12px; border: 1px solid #e4e9f1; border-radius: 10px;
+      background: #f7f8ff; color: #4359c7; font-size: 11px; font-weight: 750;
+    }
+    .dashboard-button:hover { border-color: #b9c5ff; background: #eef1ff; }
+    .messages {
+      flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 15px;
+      overflow-y: auto; padding: 24px clamp(18px, 4vw, 42px);
+      background: linear-gradient(#fff, #fcfdff);
+      scrollbar-color: #cbd4e4 transparent; scrollbar-width: thin;
+    }
+    .day-divider { display: flex; align-items: center; gap: 12px; color: #a0a9ba; font-size: 10px; }
+    .day-divider::before, .day-divider::after { height: 1px; flex: 1; background: var(--line); content: ""; }
+    .row { display: flex; align-items: flex-end; gap: 8px; }
+    .row.user-row { justify-content: flex-end; }
+    .mini-avatar {
+      width: 25px; height: 25px; display: grid; place-items: center; flex: 0 0 auto;
+      border-radius: 9px; background: #eef1ff; color: var(--blue); font-size: 10px; font-weight: 800;
+    }
+    .bubble {
+      max-width: min(78%, 560px); padding: 12px 15px;
+      border: 1px solid #e9edf4; border-radius: 17px 17px 17px 5px;
+      background: #f7f8fc; color: #303b50; font-size: 13px;
+      line-height: 1.7; overflow-wrap: anywhere; white-space: pre-wrap;
+    }
+    .user-row .bubble {
+      border-color: transparent; border-radius: 17px 17px 5px 17px;
+      background: linear-gradient(135deg, #5574fa, #405fe9);
+      color: #fff; box-shadow: 0 5px 14px #4f6df32a;
+    }
+    .bubble.error { border-color: #ffe0db; background: #fff5f3; color: #a84235; }
+    .bubble-meta { margin: -8px 0 0 34px; color: #7d89a0; font-size: 10px; }
+    .bubble-meta span {
+      display: inline-block; margin: 2px 5px 0 0; padding: 3px 7px;
+      border: 1px solid #e9edf4; border-radius: 20px; background: #fff;
+    }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 2px 34px; }
+    .suggestion {
+      padding: 7px 10px; border: 1px solid #e4e9f3; border-radius: 20px;
+      background: #fff; color: #5e6d88; font-size: 10px;
+    }
+    .suggestion:hover { border-color: #bac6ff; color: var(--blue); }
+    .composer-wrap {
+      flex: 0 0 auto; padding: 13px 20px 17px;
+      border-top: 1px solid var(--line); background: #fff;
+    }
+    .composer {
+      display: flex; align-items: center; gap: 9px; padding: 7px;
+      border: 1px solid #e2e8f1; border-radius: 15px; background: #fbfcfe;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .composer:focus-within { border-color: #91a3ff; box-shadow: 0 0 0 3px #4667f510; }
+    .composer input {
+      min-width: 0; flex: 1; padding: 9px 8px; border: 0; outline: 0;
+      background: transparent; color: var(--ink); font-size: 13px;
+    }
+    .composer input::placeholder { color: #a4adbd; }
+    .send-button {
+      width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto;
+      border: 0; border-radius: 11px; background: var(--blue); color: #fff;
+      box-shadow: 0 5px 12px #4667f533;
+    }
+    .send-button:hover { background: var(--blue-dark); }
+    .send-button:disabled { cursor: wait; opacity: .6; }
+    .send-button svg { width: 18px; height: 18px; }
+    .composer-hint { display: flex; justify-content: space-between; gap: 8px; padding: 8px 5px 0; color: #9aa4b6; font-size: 10px; }
+    .overlay {
+      position: fixed; inset: 0; z-index: 3; display: grid; place-items: center;
+      overflow-y: auto; padding: 18px; background: #11182db3; backdrop-filter: blur(7px);
+    }
+    .overlay[hidden] { display: none; }
+    .onboarding {
+      width: min(440px, 100%); padding: 27px; border: 1px solid #edf0f6;
+      max-height: calc(100dvh - 36px); overflow-y: auto; border-radius: 22px;
+      background: #fff; box-shadow: 0 25px 80px #10172a55;
+    }
+    .onboarding-icon {
+      width: 46px; height: 46px; display: grid; place-items: center; margin-bottom: 16px;
+      border-radius: 15px; background: #eef1ff; color: var(--blue); font-size: 20px;
+    }
+    .onboarding h2 { margin: 0; font-size: 21px; letter-spacing: -.03em; }
+    .onboarding p { margin: 8px 0 20px; color: #707c91; font-size: 12px; line-height: 1.65; }
+    .field { display: grid; gap: 6px; margin-top: 12px; }
+    .field label { color: #56627a; font-size: 11px; font-weight: 700; }
+    .field input {
+      width: 100%; padding: 11px 12px; border: 1px solid #e1e6ef;
+      border-radius: 10px; outline: none; background: #fcfdff; font-size: 13px;
+    }
+    .field input:focus { border-color: #91a3ff; box-shadow: 0 0 0 3px #4667f510; }
+    .form-error { min-height: 18px; margin-top: 8px; color: #bd4b3b; font-size: 11px; }
+    .form-actions { display: flex; gap: 9px; margin-top: 10px; }
+    .primary, .secondary {
+      min-height: 42px; padding: 0 14px; border-radius: 10px; font-size: 12px; font-weight: 750;
+    }
+    .primary { flex: 1; border: 0; background: var(--blue); color: white; }
+    .primary:hover { background: var(--blue-dark); }
+    .secondary { border: 1px solid #e2e7ef; background: #fff; color: #56627a; }
+    .privacy-note { margin-top: 14px; color: #98a2b3; font-size: 10px; line-height: 1.6; }
+    .score-details {
+      max-width: min(78%, 560px); margin: -7px 0 0 34px; padding: 10px 12px;
+      border: 1px solid #e8edf4; border-radius: 11px; background: #fff;
+      color: #56627a; font-size: 11px;
+    }
+    .score-details summary { color: #4359c7; cursor: pointer; font-weight: 750; }
+    .score-details p { margin: 7px 0; line-height: 1.5; }
+    .score-details ul { display: grid; gap: 4px; margin: 5px 0 0; padding-left: 18px; }
+    .analytics-panel {
+      width: min(900px, 100%); max-height: calc(100dvh - 36px);
+      overflow: auto; padding: 24px; border: 1px solid #edf0f6;
+      border-radius: 20px; background: #fff; box-shadow: 0 25px 80px #10172a55;
+    }
+    .analytics-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .analytics-header h2 { margin: 0; font-size: 22px; letter-spacing: -.03em; }
+    .analytics-header p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .analytics-close {
+      width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid #e4e9f1;
+      border-radius: 10px; background: #fff; color: #56627a; font-size: 18px;
+    }
+    .analytics-close:hover { background: #f7f8fc; }
+    .analytics-status { min-height: 20px; margin: 12px 0 4px; color: #758199; font-size: 11px; }
+    .analytics-status.error { color: #a84235; }
+    .analytics-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 12px 0 20px; }
+    .analytics-card { padding: 14px; border: 1px solid #e9edf4; border-radius: 13px; background: #fbfcff; }
+    .analytics-card strong { display: block; color: var(--ink); font-size: 22px; line-height: 1.2; }
+    .analytics-card span { display: block; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .analytics-section-title { margin: 18px 0 10px; font-size: 14px; }
+    .distribution-list { display: grid; gap: 9px; }
+    .distribution-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) 32px; align-items: center; gap: 10px; color: #56627a; font-size: 11px; }
+    .distribution-track { height: 9px; overflow: hidden; border-radius: 10px; background: #edf0f6; }
+    .distribution-fill { height: 100%; min-width: 0; border-radius: inherit; background: #607af2; }
+    .distribution-row[data-category="Hot"] .distribution-fill { background: #e56c60; }
+    .distribution-row[data-category="Warm"] .distribution-fill { background: #e9ac48; }
+    .distribution-row[data-category="Cold"] .distribution-fill { background: #6b8ee8; }
+    .intent-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .intent-chip { padding: 6px 9px; border: 1px solid #e8edf4; border-radius: 18px; color: #56627a; font-size: 10px; }
+    .lead-table-wrap { overflow-x: auto; border: 1px solid #e9edf4; border-radius: 12px; }
+    .lead-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; }
+    .lead-table th, .lead-table td { min-width: 90px; padding: 10px 11px; border-bottom: 1px solid #edf0f5; vertical-align: top; }
+    .lead-table th { background: #f8f9fc; color: #68758c; font-weight: 750; }
+    .lead-table td:last-child { min-width: 190px; }
+    .lead-table tbody tr:last-child td { border-bottom: 0; }
+    .lead-table-empty { padding: 16px !important; color: var(--muted); text-align: center; }
+    @media (max-width: 760px) {
+      body { padding: 0; background: #fff; }
+      .shell { width: 100%; height: 100dvh; min-height: 0; grid-template-columns: 1fr; border: 0; border-radius: 0; }
+      .sidebar { display: none; }
+      .topbar { min-height: 70px; padding: 12px 16px; }
+      .messages { padding: 20px 15px; }
+      .composer-wrap { padding: 11px 12px 14px; }
+      .bubble { max-width: 86%; }
+      .score-details { max-width: 86%; }
+      .analytics-panel { max-height: calc(100dvh - 20px); padding: 18px; border-radius: 16px; }
+      .analytics-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 380px) {
+      .agent-status { max-width: 165px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .profile-button { padding: 8px 9px; }
+      .dashboard-button { padding: 8px 9px; }
+      .onboarding { padding: 21px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-name">SUPPORT DESK</div>
+          <div class="brand-caption">Customer care · Lead qualification</div>
+        </div>
+      </div>
+      <div class="side-copy">
+        <div class="eyebrow">Here to help</div>
+        <h1>A better answer starts with a good question.</h1>
+        <p>Ask us about the services shown below. If something is not verified, we’ll say so instead of guessing.</p>
+      </div>
+      <ul class="topic-list">
+        <li><span class="topic-dot"></span>CRM &amp; lead management</li>
+        <li><span class="topic-dot"></span>Analytics &amp; reporting</li>
+        <li><span class="topic-dot"></span>Integrations &amp; technical help</li>
+        <li><span class="topic-dot"></span>Plans, billing &amp; enquiries</li>
+      </ul>
+      <div class="side-note">
+        <strong>Your choice, your pace</strong>
+        Register to link our support history of customers, or continue as a guest. Guest messages are logged without a customer profile; don’t include personal details.
+      </div>
+    </aside>
+
+    <section class="chat-panel" aria-label="Customer support chat">
+      <header class="topbar">
+        <div class="agent">
+          <div class="agent-avatar">S</div>
+          <div>
+            <div class="agent-name">Customer Support Agent</div>
+            <div id="agent-status" class="agent-status">Online · You can chat as a guest</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button id="analytics-button" class="dashboard-button" type="button">Analytics</button>
+          <button id="profile-button" class="profile-button" type="button">Add your details</button>
+        </div>
+      </header>
+
+      <section id="messages" class="messages" aria-live="polite" aria-label="Chat messages">
+        <div class="day-divider"><span>START A CONVERSATION</span></div>
+        <div class="row">
+          <div class="mini-avatar">S</div>
+          <div class="bubble">Hi! I can help with product information, pricing enquiries, technical support, and billing concerns. You can ask a question without sharing personal details.</div>
+        </div>
+        <div class="suggestions" aria-label="Suggested questions">
+          <button class="suggestion" type="button" data-prompt="What products and services do you offer?">What do you offer?</button>
+          <button class="suggestion" type="button" data-prompt="What does the analytics platform do?">Analytics platform</button>
+          <button class="suggestion" type="button" data-prompt="How do I reset my password?">I need technical help</button>
+        </div>
+      </section>
+
+      <div class="composer-wrap">
+        <form id="chat-form" class="composer">
+          <input id="message-input" type="text" maxlength="2000" placeholder="Write your message..." autocomplete="off" aria-label="Your message" required>
+          <button id="send-button" class="send-button" type="submit" aria-label="Send message">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+        <div class="composer-hint"><span>Enter to send</span><span id="identity-hint">Guest chat is not linked to a customer profile</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="onboarding-overlay" class="overlay" hidden>
+    <section class="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+      <div class="onboarding-icon" aria-hidden="true">✦</div>
+      <h2 id="onboarding-title">Make this chat personal</h2>
+      <p>Share your name and email if you want us to save your support history under your customer profile. Phone is optional. You can skip this and chat as a guest.</p>
+      <form id="profile-form">
+        <div class="field">
+          <label for="customer-name">Name</label>
+          <input id="customer-name" name="name" type="text" maxlength="120" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="customer-email">Email</label>
+          <input id="customer-email" name="email" type="email" maxlength="254" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="customer-phone">Phone <span style="font-weight:400;color:#929db0">(optional)</span></label>
+          <input id="customer-phone" name="phone" type="tel" maxlength="40" autocomplete="tel">
+        </div>
+        <div id="profile-error" class="form-error" role="alert"></div>
+        <div class="form-actions">
+          <button id="continue-guest" class="secondary" type="button">Continue as guest</button>
+          <button id="save-profile" class="primary" type="submit">Save details</button>
+        </div>
+      </form>
+      <div class="privacy-note">Only provide details you’re comfortable sharing. Never enter a password, verification code, or payment-card number.</div>
+    </section>
+  </div>
+
+  <div id="analytics-overlay" class="overlay" hidden>
+    <section class="analytics-panel" role="dialog" aria-modal="true" aria-labelledby="analytics-title">
+      <header class="analytics-header">
+        <div>
+          <h2 id="analytics-title">Lead &amp; enquiry analytics</h2>
+          <p>Live totals from the customer, conversation, and lead database.</p>
+        </div>
+        <button id="analytics-close" class="analytics-close" type="button" aria-label="Close analytics">×</button>
+      </header>
+      <div id="analytics-status" class="analytics-status" role="status">Loading analytics…</div>
+      <div class="analytics-cards">
+        <div class="analytics-card"><strong id="analytics-customers">—</strong><span>Total customers</span></div>
+        <div class="analytics-card"><strong id="analytics-leads">—</strong><span>Total leads</span></div>
+        <div class="analytics-card"><strong id="analytics-conversations">—</strong><span>Total conversations</span></div>
+        <div class="analytics-card"><strong id="analytics-sales">—</strong><span>Sales enquiries</span></div>
+      </div>
+      <h3 class="analytics-section-title">Lead category distribution</h3>
+      <div id="analytics-distribution" class="distribution-list"></div>
+      <h3 class="analytics-section-title">Enquiries by intent</h3>
+      <div id="analytics-intents" class="intent-list"></div>
+      <h3 class="analytics-section-title">Current leads</h3>
+      <div class="lead-table-wrap">
+        <table class="lead-table">
+          <thead><tr><th>Customer</th><th>Score</th><th>Category</th><th>Status</th><th>Next action</th></tr></thead>
+          <tbody id="analytics-lead-rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const requestedPort = new URLSearchParams(location.search).get("apiPort");
+    const parsedPort = Number(requestedPort);
+    const apiPort = Number.isInteger(parsedPort) && parsedPort > 0 && parsedPort <= 65535
+      ? parsedPort
+      : (location.port && location.port !== "5500" && location.port !== "5501"
+        ? Number(location.port)
+        : 8000);
+    const apiProtocol = location.protocol === "https:" ? "https:" : "http:";
+    const apiHost = location.hostname === "localhost" ? "127.0.0.1" : location.hostname;
+    const API_URL = `${apiProtocol}//${apiHost || "127.0.0.1"}:${apiPort}`;
+    const CUSTOMER_STORAGE_KEY = "assignment1SupportCustomerId";
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("message-input");
+    const messages = document.getElementById("messages");
+    const sendButton = document.getElementById("send-button");
+    const overlay = document.getElementById("onboarding-overlay");
+    const profileForm = document.getElementById("profile-form");
+    const profileError = document.getElementById("profile-error");
+    const profileButton = document.getElementById("profile-button");
+    const agentStatus = document.getElementById("agent-status");
+    const identityHint = document.getElementById("identity-hint");
+    const analyticsOverlay = document.getElementById("analytics-overlay");
+    const analyticsStatus = document.getElementById("analytics-status");
+    let customerId = Number(localStorage.getItem(CUSTOMER_STORAGE_KEY)) || null;
+    let customerProfile = null;
+    let recentMessages = [];
+    let conversationHistory = [];
+
+    async function request(path, options = {}) {
+      const response = await fetch(`${API_URL}${path}`, {
+        ...options,
+        headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = typeof data.detail === "string" ? data.detail : `Request failed (${response.status})`;
+        throw new Error(detail);
+      }
+      return data;
+    }
+
+    function setIdentity(profile) {
+      customerProfile = profile;
+      if (profile) {
+        agentStatus.textContent = `Online · Chat saved for ${profile.name}`;
+        profileButton.textContent = "Your details";
+        identityHint.textContent = "Your messages are linked to your customer profile";
+      } else {
+        agentStatus.textContent = "Online · You can chat as a guest";
+        profileButton.textContent = "Add your details";
+        identityHint.textContent = "Guest chat is not linked to a customer profile";
+      }
+    }
+
+    function openProfileDialog() {
+      document.getElementById("onboarding-title").textContent =
+        customerId ? "Update your details" : "Make this chat personal";
+      document.getElementById("save-profile").textContent =
+        customerId ? "Update details" : "Save details";
+      document.getElementById("customer-name").value = customerProfile?.name || "";
+      document.getElementById("customer-email").value = customerProfile?.email || "";
+      document.getElementById("customer-phone").value = customerProfile?.phone || "";
+      profileError.textContent = "";
+      overlay.hidden = false;
+      document.getElementById("customer-name").focus();
+    }
+
+    function closeProfileDialog() {
+      overlay.hidden = true;
+      input.focus();
+    }
+
+    function addMessage(text, kind) {
+      const row = document.createElement("div");
+      row.className = `row ${kind === "user" ? "user-row" : ""}`;
+      if (kind !== "user") {
+        const avatar = document.createElement("div");
+        avatar.className = "mini-avatar";
+        avatar.textContent = "S";
+        row.appendChild(avatar);
+      }
+      const bubble = document.createElement("div");
+      bubble.className = `bubble${kind === "error" ? " error" : ""}`;
+      bubble.textContent = text;
+      row.appendChild(bubble);
+      messages.appendChild(row);
+      messages.scrollTop = messages.scrollHeight;
+      return row;
+    }
+
+    function showAssistantResponse(data) {
+      addMessage(data.reply, "bot");
+      const details = [];
+      if (data.intent) details.push(data.intent);
+      if (data.answer_source) {
+        details.push(data.answer_source === "ollama" ? "Ollama AI" : "Local reply");
+      }
+      if (data.product_interest && data.product_interest !== "General Inquiry") {
+        details.push(data.product_interest);
+      }
+      if (data.lead && Number.isInteger(data.lead.score)) {
+        details.push(`Lead ${data.lead.score}/100 · ${data.lead.category}`);
+      }
+      if (details.length) {
+        const meta = document.createElement("div");
+        meta.className = "bubble-meta";
+        for (const detail of details) {
+          const chip = document.createElement("span");
+          chip.textContent = detail;
+          meta.appendChild(chip);
+        }
+        messages.appendChild(meta);
+      }
+      if (data.lead && Array.isArray(data.lead.explanation)) {
+        const scoreDetails = document.createElement("details");
+        scoreDetails.className = "score-details";
+        scoreDetails.open = true;
+        const summary = document.createElement("summary");
+        summary.textContent = "Lead scoring explanation";
+        scoreDetails.appendChild(summary);
+        const action = document.createElement("p");
+        action.textContent = `Recommended next action: ${data.lead.next_action || "No action specified"}`;
+        scoreDetails.appendChild(action);
+        const explanation = document.createElement("ul");
+        for (const feature of data.lead.explanation) {
+          const item = document.createElement("li");
+          item.textContent = `${feature.feature}: ${feature.points > 0 ? "+" : ""}${feature.points} points`;
+          explanation.appendChild(item);
+        }
+        scoreDetails.appendChild(explanation);
+        messages.appendChild(scoreDetails);
+      }
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function renderAnalytics(data, leads) {
+      document.getElementById("analytics-customers").textContent = data.total_customers;
+      document.getElementById("analytics-leads").textContent = data.total_leads;
+      document.getElementById("analytics-conversations").textContent = data.total_conversations;
+      document.getElementById("analytics-sales").textContent = data.sales_enquiries;
+
+      const distribution = document.getElementById("analytics-distribution");
+      distribution.replaceChildren();
+      for (const category of ["Hot", "Warm", "Cold"]) {
+        const count = data.lead_distribution[category] || 0;
+        const percent = data.total_leads ? (count / data.total_leads) * 100 : 0;
+        const row = document.createElement("div");
+        row.className = "distribution-row";
+        row.dataset.category = category;
+        const label = document.createElement("span");
+        label.textContent = category;
+        const track = document.createElement("div");
+        track.className = "distribution-track";
+        const fill = document.createElement("div");
+        fill.className = "distribution-fill";
+        fill.style.width = `${percent}%`;
+        track.appendChild(fill);
+        const total = document.createElement("strong");
+        total.textContent = count;
+        row.append(label, track, total);
+        distribution.appendChild(row);
+      }
+
+      const intents = document.getElementById("analytics-intents");
+      intents.replaceChildren();
+      for (const intent of ["Sales", "Support", "Complaint", "General"]) {
+        const chip = document.createElement("span");
+        chip.className = "intent-chip";
+        chip.textContent = `${intent}: ${data.query_distribution_by_intent[intent] || 0}`;
+        intents.appendChild(chip);
+      }
+
+      const leadRows = document.getElementById("analytics-lead-rows");
+      leadRows.replaceChildren();
+      if (!leads.length) {
+        const row = document.createElement("tr");
+        const empty = document.createElement("td");
+        empty.colSpan = 5;
+        empty.className = "lead-table-empty";
+        empty.textContent = "No registered-customer leads yet. Register a customer and ask a question to create one.";
+        row.appendChild(empty);
+        leadRows.appendChild(row);
+      } else {
+        for (const lead of leads) {
+          const row = document.createElement("tr");
+          for (const value of [
+            lead.name || lead.email || `Customer ${lead.customer_id}`,
+            `${lead.score}/100`,
+            lead.category,
+            lead.status,
+            lead.next_action || "—"
+          ]) {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+          }
+          leadRows.appendChild(row);
+        }
+      }
+    }
+
+    async function openAnalytics() {
+      analyticsOverlay.hidden = false;
+      analyticsStatus.className = "analytics-status";
+      analyticsStatus.textContent = "Loading analytics…";
+      try {
+        const [analytics, leads] = await Promise.all([
+          request("/analytics"),
+          request("/leads")
+        ]);
+        renderAnalytics(analytics, leads);
+        analyticsStatus.textContent = `Average lead score: ${analytics.average_lead_score}/100`;
+      } catch (error) {
+        analyticsStatus.className = "analytics-status error";
+        analyticsStatus.textContent = `Could not load analytics: ${error.message}`;
+        console.error("[index.html] Analytics request failed:", error);
+      }
+    }
+
+    function closeAnalytics() {
+      analyticsOverlay.hidden = true;
+      document.getElementById("analytics-button").focus();
+    }
+
+    async function sendMessage(message) {
+      const cleaned = message.trim();
+      if (!cleaned || sendButton.disabled) return;
+      addMessage(cleaned, "user");
+      input.value = "";
+      sendButton.disabled = true;
+      try {
+        const data = await request("/chat/message", {
+          method: "POST",
+          body: JSON.stringify({
+            message: cleaned,
+            customer_id: customerId,
+            context: recentMessages.slice(-8),
+            history: conversationHistory.slice(-8)
+          })
+        });
+        showAssistantResponse(data);
+        recentMessages.push(cleaned);
+        recentMessages = recentMessages.slice(-8);
+        conversationHistory.push(
+          { role: "user", content: cleaned },
+          { role: "assistant", content: data.reply }
+        );
+        conversationHistory = conversationHistory.slice(-8);
+      } catch (error) {
+        console.error("[index.html] Chat request failed:", error);
+        addMessage(`I couldn't reach the support service. ${error.message} Check that the backend is running at ${API_URL}, then try again.`, "error");
+      } finally {
+        sendButton.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage(input.value);
+    });
+
+    document.querySelectorAll("[data-prompt]").forEach((button) => {
+      button.addEventListener("click", () => sendMessage(button.dataset.prompt));
+    });
+
+    profileButton.addEventListener("click", openProfileDialog);
+    document.getElementById("analytics-button").addEventListener("click", openAnalytics);
+    document.getElementById("analytics-close").addEventListener("click", closeAnalytics);
+    analyticsOverlay.addEventListener("click", (event) => {
+      if (event.target === analyticsOverlay) closeAnalytics();
+    });
+    document.getElementById("continue-guest").addEventListener("click", () => {
+      if (customerId) {
+        customerId = null;
+        customerProfile = null;
+        localStorage.removeItem(CUSTOMER_STORAGE_KEY);
+        setIdentity(null);
+      }
+      closeProfileDialog();
+    });
+
+    profileForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      profileError.textContent = "";
+      const payload = {
+        name: document.getElementById("customer-name").value.trim(),
+        email: document.getElementById("customer-email").value.trim(),
+        phone: document.getElementById("customer-phone").value.trim() || null
+      };
+      if (!payload.name || !payload.email) {
+        profileError.textContent = "Please enter your name and a valid email address.";
+        return;
+      }
+      const saveButton = document.getElementById("save-profile");
+      saveButton.disabled = true;
+      try {
+        const profile = customerId
+          ? await request(`/customers/${customerId}`, { method: "PUT", body: JSON.stringify(payload) })
+          : await request("/customers", { method: "POST", body: JSON.stringify(payload) });
+        customerId = profile.customer_id;
+        localStorage.setItem(CUSTOMER_STORAGE_KEY, String(customerId));
+        setIdentity(profile);
+        closeProfileDialog();
+        addMessage(`Thanks, ${profile.name}. Your next messages will be saved with your customer support history.`, "bot");
+      } catch (error) {
+        profileError.textContent = error.message || "Could not save your details. Please try again.";
+        console.error("[index.html] Customer registration failed:", error);
+      } finally {
+        saveButton.disabled = false;
+      }
+    });
+
+    async function initializeProfile() {
+      if (!customerId) {
+        setIdentity(null);
+        overlay.hidden = false;
+        return;
+      }
+      try {
+        const profile = await request(`/customers/${customerId}`);
+        setIdentity(profile);
+      } catch (error) {
+        console.warn("[index.html] Saved customer profile unavailable:", error.message);
+        localStorage.removeItem(CUSTOMER_STORAGE_KEY);
+        customerId = null;
+        setIdentity(null);
+        overlay.hidden = false;
+      }
+    }
+
+    initializeProfile();
+  </script>
+</body>
+</html>
